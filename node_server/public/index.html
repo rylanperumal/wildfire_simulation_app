@@ -92,7 +92,8 @@
 			const newMarker = new L.marker(e.latlng, {icon:flameIcon}).addTo(mymap);
 			markers.push(newMarker);
 			d.push(e.latlng);
-			console.log(e.latlng);
+			// console.log(e.latlng);
+			console.log(e);
 		}
 	}
 	function goPython(){
@@ -118,6 +119,7 @@
 			d.forEach(async elt => {
 				lat = elt.lat;
 				lon = elt.lng;
+				// console.log(elt)
 				const data = {lat, lon};
 				const options = {
 					method: 'POST',
