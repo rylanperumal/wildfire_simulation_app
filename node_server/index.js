@@ -1,7 +1,4 @@
 const express = require('express');
-var myPythonScriptPath = 'public/lstm.py';
-let {PythonShell} = require('python-shell')
-var pyshell = new PythonShell(myPythonScriptPath);
 const app = express();
 app.listen(3000, () => console.log('listening at 3000'));
 app.use(express.static('public'));
@@ -15,10 +12,11 @@ app.post('/api', (request, response) => {
     all_data.push(data);
     response.json(all_data);
     console.log(all_data);
-    if (all_data.length == 2){
-        //var myPythonScriptPath = 'public/lstm.py';
+    if (all_data.length >= 2){
+        var myPythonScriptPath = 'public/lstm.py';
         let {PythonShell} = require('python-shell')
         var pyshell = new PythonShell(myPythonScriptPath);
+        pyshell.send(JSON.stringify([1,2,3,4,5]));
         pyshell.on('message', function (message) {
             // received a message sent from the Python script (a simple "print" statement)
             console.log(message);
@@ -28,7 +26,7 @@ app.post('/api', (request, response) => {
                 throw err;
             };
 
-            console.log('finished');
+            // console.log('finished');
         });
     }
 });
