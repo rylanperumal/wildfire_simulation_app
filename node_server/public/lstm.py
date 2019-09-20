@@ -9,17 +9,26 @@ import random
 import requests
 import pandas as pd
 import math
+import time
 
 # script for returning elevation from lat, long, based on open elevation data
 # which in turn is based on SRTM
 
 def get_coords():
-    lines = sys.stdin.readlines()
-    # print(lines[0])
-    t = lines[0].split(',')
-    l = t[-1].split('\n')
-    t[-1] = l[0]
-    coords = np.array(t, dtype=np.float)
+    # lines = sys.stdin.readlines()
+    lines = input()
+    lines = lines[1:]
+    lines = lines[:-1]
+    # print(lines)
+
+    coords = np.array(lines.split(','), dtype=np.float)
+    # print(coords)
+    # print(lines.split(','))
+    # # print(lines[0])
+    # t = lines[0].split(',')
+    # l = t[-1].split('\n')
+    # t[-1] = l[0]
+    # coords = np.array(t, dtype=np.float)
     nsteps = 5
     # coords = 1
     return coords, nsteps
@@ -128,6 +137,7 @@ def generate_input(point_1, point_2, frp_1, frp_2, hours, weeks, first=True, y_p
 def get_elevation(point):
     lat = point[0]
     lon = point[1]
+    print(point)
     URL = 'https://elevation-api.io/api/elevation?points=' + '(' + str(lat) + ',' + str(lon) + ')&key=-3aUREs6J1xZD-UA3F1AkfVbag-cB3'
     # print(URL)
     # URL = 'https://api.open-elevation.com/api/v1/lookup\?locations\= ' + str(lat) + ',' + str(lon) + '\ '
@@ -135,6 +145,7 @@ def get_elevation(point):
     data = r.json()
     # print(data)
     # print(data['elevations'][0]['elevation'])
+    # print(data)
     return data['elevations'][0]['elevation']
 
 def get_new_point(points, y_pred):
@@ -182,13 +193,14 @@ def get_new_point(points, y_pred):
 
 
 if __name__ == '__main__':
+    start = time.time()
     coords, nsteps = get_coords()
     # get_coords()
     # print(coords, nsteps)
     points = []
-    print('loading model')
+    # print('loading model')
     model = load_model('/home/rylan/Desktop/wildfire_simulation_app/node_server/public/lstm_3.h5')
-    print('model loaded')
+    # print('model loaded')
     today = date.today()
     # print(today.hour)
     point_1 = list(coords[:2])
@@ -197,8 +209,8 @@ if __name__ == '__main__':
     points.append(point_2.copy())
     point_1.append(get_elevation(point_1))
     point_2.append(get_elevation(point_2))
+    # print('Starting')
 
-    print('Starting')
     year, week, day_of_week = today.isocalendar()
     hour = datetime.datetime.now().hour
     weeks = np.zeros(52)
@@ -231,11 +243,13 @@ if __name__ == '__main__':
         y_pred.append(model.predict_classes(X)[0])
 
     points = np.array(points)
-    print(points)
+    # print(points)
     points_df = pd.DataFrame(points[1:])
-    print(points_df)
-    print('Writing to CSV')
+    # print(points_df)
+    # print('Writing to CSV')
     # print(os.getcwd())
     points_df.to_csv(r'/home/rylan/Desktop/wildfire_simulation_app/node_server/public/predicted_points.csv', index=None, header=True)
     print('CSV Created')
     print('done')
+    end = time.time()
+    print(end-start)

@@ -16,11 +16,6 @@
   		integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
   		crossorigin=""></script>
 	<title>mapsketch</title>
-
-	<!-- <script src="libraries/p5.dom.js"></script>
-	<script src="libraries/p5.js"></script>
-	<script src="libraries/p5.sound.js"></script>
-	<script src="sketch.js"></script> -->
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 
 	<style>
@@ -36,17 +31,18 @@
 	</p>
 	<div id="issMap"></div>
 	<button name="reset" onclick="reset()">Reset</button>
-	<p><a href="/run">Run python</a></p>
+	<!-- <p><a href="/run">Run python</a></p> -->
 
-	<!-- <button id='simulate' name="start" onclick="simulate()">Start Simulation</button> -->
+	<button id='simulate' name="start" onclick="simulate()">Start Simulation</button>
 
 	<script>
 	// -3aUREs6J1xZD-UA3F1AkfVbag-cB3
 
 	let lat, lon;
 	var interval;
-	var python_done = false;
 	var msg = 0;
+	var received = 0;
+
 	const mymap = L.map('issMap').setView([-29.906137, 25.244125], 4); // latitude, longitude, zoom level
 	// mymap.on('click', onClick);
 	// making a marker with a custom icon
@@ -64,8 +60,6 @@
 	const tileURL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 	const tiles = L.tileLayer(tileURL, {attribution});
 	tiles.addTo(mymap);
-	// const api_url = 'https://api.wheretheiss.at/v1/satellites/25544';
-	// const api_url = 'https://api.open-elevation.com/api/v1/lookup\?locations\=10,10\|20,20\|41.161758,-8.583933';
 	mymap.on('click', addMarker);
 
 	async function addMarker(e){
@@ -87,11 +81,51 @@
 		   	};
 		    const response = await fetch('/api', options);
 		    const json = await response.json();
-			msg = await json;
-		    console.log(msg);
+		    console.log('Server received point: ', json);
 		}
 	}
 
+	async function add_points(){
+		var r = 0;
+		const d = {r};
+		const op = {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Accept': 'application/json'
+			},
+			body: JSON.stringify(d)
+		}
+		const res = await fetch('/done', op);
+		const json = await res.json();
+		received = await json;
+		if (received == 1){
+			getData();
+			console.log('hello');
+			clearInterval(interval);
+			received = false;
+		}
+
+	}
+	async function simulate(){
+		if(markers.length == 2){
+			interval = setInterval(add_points, 3000);
+			var r = 0;
+			const d = {r};
+			const op = {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Accept': 'application/json'
+				},
+				body: JSON.stringify(d)
+			}
+			const res = await fetch('/sim', op);
+			const json = await res.json();
+			console.log('Simulation Starting ...', json);
+
+		}
+	}
 	function reset(remove_markers){
 		markers.forEach(marker => {
 			mymap.removeLayer(marker);
@@ -99,15 +133,8 @@
 		markers.length = 0;
 		lat_lons.length = 0
 		msg = 0;
+		clearInterval(interval);
 		// clearInterval(interval);
-	}
-	async function simulate(){
-
-		if (msg == 2){
-			getData();
-			console.log('hello');
-			clearInterval(interval);
-		}
 	}
 	// document.getElementById('simulate').addEventListener('click', async event =>{
 	// 		// 	console.log(json);
@@ -116,17 +143,39 @@
 	// 		// }
 	// });
 	async function getData(){
-		const xs = [];
-		const ys = [];
+		// const xs = [];
+		// const ys = [];
+		var count = 0;
 		const response = await fetch('predicted_points.csv');
 		const data = await response.text();
 		console.log(data);
+		const table = data.split('\n').slice(1);
+		console.log(table);
+		table.forEach(row => {
+			const columns = row.split(',');
+			const latitude = columns[0];
+			// xs.push(year);
+			const longitude = columns[1];
+			// ys.push(parseFloat(temp)+14);
+			// console.log(year, temp);
+			if(count < 5){
+				// const newMarker = new L.marker(e.latlng, {icon:flameIcon}).addTo(mymap);
+				setTimeout(function(latiude, longitude) {
+					console.log(latitude, longitude);
+					const marker = new L.marker([latitude, longitude], {icon: flameIcon}).addTo(mymap);
+					markers.push(marker);
+				}, 1000);
+
+				count = count + 1;
+			}
+		});
+
+		// return {xs, ys};
 	}
 
 	// async function onClick(e) {
 	// 	await alert(L.getLatLng());
 	// }
-	interval = setInterval(simulate, 3000);
 	</script>
 </body>
 </html>
