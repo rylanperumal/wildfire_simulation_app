@@ -69,6 +69,9 @@
 	// }
 
 	let lat, lon;
+	var interval;
+	const latitudes;
+	const longitudes;
 	const mymap = L.map('issMap').setView([-29.906137, 25.244125], 4); // latitude, longitude, zoom level
 	// mymap.on('click', onClick);
 	// making a marker with a custom icon
@@ -99,15 +102,6 @@
 			console.log(e);
 		}
 	}
-	function goPython(){
-		$.ajax({
-		 url: "lstm.py",
-		 context: document.body
-		}).done(function() {
-		 alert('finished python script');;
-		});
-	}
-
 
 	function remove_markers(){
 		markers.forEach(marker => {
@@ -115,44 +109,79 @@
 		});
 		markers.length = 0;
 		d.length = 0;
+		clearInterval(interval);
 	}
 	document.getElementById('simulate').addEventListener('click', async event =>{
+		interval = setInterval(getData, 10000);
 		if (d.length == 2){
 			// goPython();
 			d.forEach(async elt => {
 				lat = elt.lat;
 				lon = elt.lng;
-				const t = 'https://elevation-api.io/api/elevation?points=' + '(' + lat + ',' + lon + ')&key=-3aUREs6J1xZD-UA3F1AkfVbag-cB3';
-				// console.log(t);
-				// const t = 'https://api.open-elevation.com/api/v1/lookup\?locations\='+lat+','+lon + '\ ';
-				const msg = await fetch(t);
-				const elevation = await msg.json();
-				const ele = elevation.elevations[0].elevation;
+				// const t = 'https://elevation-api.io/api/elevation?points=' + '(' + lat + ',' + lon + ')&key=-3aUREs6J1xZD-UA3F1AkfVbag-cB3';
+				// // console.log(t);
+				// // const t = 'https://api.open-elevation.com/api/v1/lookup\?locations\='+lat+','+lon + '\ ';
+				// const msg = await fetch(t);
+				// const elevation = await msg.json();
+				// const ele = elevation.elevations[0].elevation;
+				// console.log(ele)
 				// get_elevation(lat, lon);
 				// console.log(get_elevation(lat, lon));
 				// console.log(api_url);
 				// console.log(await elevations_array[0])
-				const data = {lat, lon, ele};
+				const data = {lat, lon};
 				console.log(data);
 				const options = {
 					method: 'POST',
 					headers:{
 						'Content-Type': 'application/json'
-
 					},
 					body: JSON.stringify(data)
 				};
 				const response = await fetch('/api', options);
 				const json = await response.json();
 				console.log(json);
-
 			});
+
+
 		}
-
-
 	});
+	async function getData(){
+		const xs = [];
+		const ys = [];
+		const response = await fetch('predicted_points.csv');
+		const data = await response.text();
+		console.log(data);
+		// try {
+        // 	// return true;
+    	// } catch(err) {
+        // 	// return false;
+		// 	console.log(err);
+    	// }
 
-	async function onClick(e) {await alert(L.getLatLng());}
+		// console.log(data);
+		//
+		// const table = data.split('\n').slice(1);
+		// console.log(table);
+		// table.forEach(row => {
+		// 	const columns = row.split(',');
+		// 	const latitude = columns[0];
+		// 	const longitude = columns[1];
+		// 	latitudes.push(parseFloat(latiude));
+		// 	longitudes.push(parseFloat(longitudes));
+		//
+		// 	// const year = columns[0];
+		// 	// xs.push(year);
+		// 	// const temp = columns[1];
+		// 	// ys.push(parseFloat(temp)+14);
+		// 	// console.log(year, temp);
+		// });
+		// return {xs, ys};
+	}
+
+	async function onClick(e) {
+		await alert(L.getLatLng());
+	}
 	// async function getISS(){
 	// 	if (d.length == 2){
 	// 		console.log('hello');
@@ -198,6 +227,15 @@
 	// }
 	// getISS();
 	// setInterval(getISS, 2000);
+
+	// interval = setInterval(getData, 10000);
 	</script>
 </body>
 </html>
+
+
+
+
+
+
+
