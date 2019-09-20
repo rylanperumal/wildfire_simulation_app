@@ -148,9 +148,11 @@ def get_elevation(point):
     # print(data)
     return data['elevations'][0]['elevation']
 
-def get_new_point(points, y_pred, lat_diff, lon_diff):
-    # point_old = points[-2]
+def get_new_point(points, y_pred):
+    point_old = points[-2]
     point = points[-1]
+    lat_diff = abs(point[0]-point_old[0])
+    lon_diff = abs(point[1]-point_old[1])
     new_point = []
     # print(lat_diff, lon_diff)
     # print(y_pred)
@@ -226,12 +228,8 @@ if __name__ == '__main__':
     # print(X.shape)
     # print('Starting n steps')
     # print(y_pred[0])
-    lat_diff = abs(point_1[0] + point_2[0])
-    lon_diff = abs(point_1[1] - point_2[1])
-    print(lat_diff)
-    print(lon_diff)
     for i in range(nsteps):
-        new_point = get_new_point(points.copy(), y_pred[i], lat_diff, lon_diff)
+        new_point = get_new_point(points.copy(), y_pred[i])
         points.append(np.array(new_point.copy()))
         old_point = list(points[i+1])
         new_point.append(get_elevation(new_point.copy()))

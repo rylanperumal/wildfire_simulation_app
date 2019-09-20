@@ -160,15 +160,17 @@
 			// console.log(year, temp);
 			if(count < 5){
 				// const newMarker = new L.marker(e.latlng, {icon:flameIcon}).addTo(mymap);
-				setTimeout(function(latiude, longitude) {
-					console.log(latitude, longitude);
-					const marker = new L.marker([latitude, longitude], {icon: flameIcon}).addTo(mymap);
+				console.log(latitude, longitude);
+				// wait(1000);
+				setTimeout(function() {
+					const marker = new L.marker([parseFloat(latitude), parseFloat(longitude)], {icon: flameIcon}).addTo(mymap).bindPopup("hello");
 					markers.push(marker);
-				}, 1000);
+				}, 2000);
 
 				count = count + 1;
 			}
 		});
+		console.log(markers.length);
 
 		// return {xs, ys};
 	}
