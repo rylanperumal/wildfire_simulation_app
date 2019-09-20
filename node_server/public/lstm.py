@@ -197,7 +197,7 @@ if __name__ == '__main__':
     # print(coords, nsteps)
     points = []
     # print('loading model')
-    model = load_model('/home/rylan/Desktop/wildfire_simulation_app/node_server/public/gru_3.h5')
+    model = load_model('/home/rylan/Desktop/wildfire_simulation_app/node_server/public/lstm_3.h5')
     # print('model loaded')
     today = date.today()
     # print(today.hour)
