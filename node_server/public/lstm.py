@@ -15,11 +15,13 @@ import math
 
 def get_coords():
     lines = sys.stdin.readlines()
+    # print(lines[0])
     t = lines[0].split(',')
     l = t[-1].split('\n')
     t[-1] = l[0]
     coords = np.array(t, dtype=np.float)
     nsteps = 5
+    # coords = 1
     return coords, nsteps
 
 def get_angle(p1, p2):

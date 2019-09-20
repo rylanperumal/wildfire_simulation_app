@@ -35,43 +35,18 @@
 		longitude: <span id="long"></span>°
 	</p>
 	<div id="issMap"></div>
-	<button name="reset" onclick="remove_markers()">Reset</button>
-	<button id='simulate' name="start">Start Simulation</button>
+	<button name="reset" onclick="reset()">Reset</button>
+	<p><a href="/run">Run python</a></p>
+
+	<!-- <button id='simulate' name="start" onclick="simulate()">Start Simulation</button> -->
 
 	<script>
 	// -3aUREs6J1xZD-UA3F1AkfVbag-cB3
-	//
-	//
-	// if ('geolocation' in navigator){
-	// 	console.log('geolocation available');
-	// 	navigator.geolocation.getCurrentPosition(async position => {
-	// 		const lat = position.coords.latitude;
-	// 		const lng = position.coords.longitude;
-	//
-	// 		document.getElementById('lat').textContent = lat;
-	// 		document.getElementById('long').textContent = lng;
-	//
-	// 		const data = {lat, lng};
-	// 		const options = {
-	// 			method: 'POST',
-	// 			headers:{
-	// 				'Content-Type':'application/json'
-	// 			},
-	// 			body: JSON.stringify(data)
-	// 		};
-	// 		const response = await fetch('/api', options);
-	// 		const t = await response.json();
-	// 		console.log(t);
-	// 		});
-	// 		// console.log(position);
-	// }else{
-	// 	console.log('geolocation not available');
-	// }
 
 	let lat, lon;
 	var interval;
-	const latitudes;
-	const longitudes;
+	var python_done = false;
+	var msg = 0;
 	const mymap = L.map('issMap').setView([-29.906137, 25.244125], 4); // latitude, longitude, zoom level
 	// mymap.on('click', onClick);
 	// making a marker with a custom icon
@@ -81,8 +56,9 @@
     iconAnchor: [12, 15],
 	});
 	const markers = [];
-	const d = [];
-	const elevations_array = [];
+	// const d = [];
+	// const elevations_array = [];
+	const lat_lons = [];
 	// const marker = L.marker([0, 0], {icon: flameIcon}).addTo(mymap);
 	const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 	const tileURL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
@@ -92,143 +68,65 @@
 	// const api_url = 'https://api.open-elevation.com/api/v1/lookup\?locations\=10,10\|20,20\|41.161758,-8.583933';
 	mymap.on('click', addMarker);
 
-	function addMarker(e){
+	async function addMarker(e){
     // Add marker to map at click location; add popup window
 		if (markers.length < 2){
 			const newMarker = new L.marker(e.latlng, {icon:flameIcon}).addTo(mymap);
 			markers.push(newMarker);
-			d.push(e.latlng);
-			// console.log(e.latlng);
-			console.log(e);
+			const {lat, lng} = e.latlng;
+			// const data = [lat, lng];
+			const data = { lat, lng };
+			// console.log(data);
+		    const options = {
+				method: 'POST',
+			 	headers: {
+			    	'Content-Type': 'application/json',
+					'Accept': 'application/json'
+			 	},
+			 	body: JSON.stringify(data)
+		   	};
+		    const response = await fetch('/api', options);
+		    const json = await response.json();
+			msg = await json;
+		    console.log(msg);
 		}
 	}
 
-	function remove_markers(){
+	function reset(remove_markers){
 		markers.forEach(marker => {
 			mymap.removeLayer(marker);
 		});
 		markers.length = 0;
-		d.length = 0;
-		clearInterval(interval);
+		lat_lons.length = 0
+		msg = 0;
+		// clearInterval(interval);
 	}
-	document.getElementById('simulate').addEventListener('click', async event =>{
-		interval = setInterval(getData, 10000);
-		if (d.length == 2){
-			// goPython();
-			d.forEach(async elt => {
-				lat = elt.lat;
-				lon = elt.lng;
-				// const t = 'https://elevation-api.io/api/elevation?points=' + '(' + lat + ',' + lon + ')&key=-3aUREs6J1xZD-UA3F1AkfVbag-cB3';
-				// // console.log(t);
-				// // const t = 'https://api.open-elevation.com/api/v1/lookup\?locations\='+lat+','+lon + '\ ';
-				// const msg = await fetch(t);
-				// const elevation = await msg.json();
-				// const ele = elevation.elevations[0].elevation;
-				// console.log(ele)
-				// get_elevation(lat, lon);
-				// console.log(get_elevation(lat, lon));
-				// console.log(api_url);
-				// console.log(await elevations_array[0])
-				const data = {lat, lon};
-				console.log(data);
-				const options = {
-					method: 'POST',
-					headers:{
-						'Content-Type': 'application/json'
-					},
-					body: JSON.stringify(data)
-				};
-				const response = await fetch('/api', options);
-				const json = await response.json();
-				console.log(json);
-			});
+	async function simulate(){
 
-
+		if (msg == 2){
+			getData();
+			console.log('hello');
+			clearInterval(interval);
 		}
-	});
+	}
+	// document.getElementById('simulate').addEventListener('click', async event =>{
+	// 		// 	console.log(json);
+	// 		// }catch{
+	// 		// 	console.log('error');
+	// 		// }
+	// });
 	async function getData(){
 		const xs = [];
 		const ys = [];
 		const response = await fetch('predicted_points.csv');
 		const data = await response.text();
 		console.log(data);
-		// try {
-        // 	// return true;
-    	// } catch(err) {
-        // 	// return false;
-		// 	console.log(err);
-    	// }
-
-		// console.log(data);
-		//
-		// const table = data.split('\n').slice(1);
-		// console.log(table);
-		// table.forEach(row => {
-		// 	const columns = row.split(',');
-		// 	const latitude = columns[0];
-		// 	const longitude = columns[1];
-		// 	latitudes.push(parseFloat(latiude));
-		// 	longitudes.push(parseFloat(longitudes));
-		//
-		// 	// const year = columns[0];
-		// 	// xs.push(year);
-		// 	// const temp = columns[1];
-		// 	// ys.push(parseFloat(temp)+14);
-		// 	// console.log(year, temp);
-		// });
-		// return {xs, ys};
 	}
 
-	async function onClick(e) {
-		await alert(L.getLatLng());
-	}
-	// async function getISS(){
-	// 	if (d.length == 2){
-	// 		console.log('hello');
-	// 		d.forEach(async elt => {
-	// 			lat = elt.lat;
-	// 			lon = elt.lng;
-
-				// // console.log(elt)
-				// const data = {lat, lon};
-				// const options = {
-				// 	method: 'POST',
-				// 	headers:{
-				// 		'Content-Type': 'application/json'
-				//
-				// 	},
-				// 	body: JSON.stringify(data)
-				// };
-				// const response = await fetch('/api', options);
-				// const json = await response.json();
-				// console.log(json);
-
-			// });
-			// const response = await fetch(api_url);
-			// const data = await response.json();
-
-		// }
-		// console.log(data.latitude, data.longitude);
-		// const {latitude, longitude} = data;
-
-		// if (markers.length == 2){
-		//
-		// 	// console.log(markers);
-		// }
-		// marker.on('click', function(e) {
-		// 	marker.setLatLng([latitude, longitude]);
-		// });
-		// mymap.panBy([longitude, latitude]);
-		// L.marker([latitude, longitude]).addTo(mymap);
-		// document.getElementById('lat').textContent = latitude.toFixed(4);
-		// document.getElementById('long').textContent = longitude.toFixed(4);
-		// console.log(latitude);
-		// console.log(longitude);
+	// async function onClick(e) {
+	// 	await alert(L.getLatLng());
 	// }
-	// getISS();
-	// setInterval(getISS, 2000);
-
-	// interval = setInterval(getData, 10000);
+	interval = setInterval(simulate, 3000);
 	</script>
 </body>
 </html>
