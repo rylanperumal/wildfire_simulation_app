@@ -1,190 +1,54 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link
-	  rel="stylesheet"
-	  href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
-	  integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
-	  crossorigin=""
-	/>
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+		integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+		crossorigin="" />
 	<!-- Make sure you put this AFTER Leaflet's CSS -->
-	<script
-		src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
-  		integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
-  		crossorigin=""></script>
-	<title>mapsketch</title>
+	<script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
+		integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
+		crossorigin=""></script>
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/addons/p5.dom.min.js"
+		integrity="sha256-2/3R3NV5zryj0fDjD3cDh+SNiWQ/TJiMVZzAo5FrhiU=" crossorigin="anonymous"></script> -->
 
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/p5.min.js"
+		integrity="sha256-WVsM3xrcqyuFNF3W1qtIKbHFsD0977nDQA8DCMp1zCw=" crossorigin="anonymous"></script>
+	<script src='javascript/sketch.js'></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+		integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
+	</script>
+	<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 	<style>
 		#issMap {
-			height: 300px;
+			height: 400px;
 		}
 	</style>
 </head>
+
 <body>
+
 	<h1> Wildfire Spread Simulation </h1>
-	<p> latiude: <span id="lat"></span>°<br />
-		longitude: <span id="long"></span>°
+	<p>
+		<div class="form-group row form-inline">
+			<div class="pl-sm-5 col-xs-2">
+				<label for="n">Time Steps</label>
+				<input class="form-control" id="n" type="text">
+			</div>
+
+
+		</div>
 	</p>
 	<div id="issMap"></div>
-	<button name="reset" onclick="reset()">Reset</button>
-	<!-- <p><a href="/run">Run python</a></p> -->
-
-	<button id='simulate' name="start" onclick="simulate()">Start Simulation</button>
-
-	<script>
-	// -3aUREs6J1xZD-UA3F1AkfVbag-cB3
-
-	let lat, lon;
-	var interval;
-	var msg = 0;
-	var received = 0;
-
-	const mymap = L.map('issMap').setView([-29.906137, 25.244125], 4); // latitude, longitude, zoom level
-	// mymap.on('click', onClick);
-	// making a marker with a custom icon
-	const flameIcon = L.icon({
-    iconUrl: 'flame_2.png',
-    iconSize: [30, 30],
-    iconAnchor: [12, 15],
-	});
-	const markers = [];
-	// const d = [];
-	// const elevations_array = [];
-	const lat_lons = [];
-	// const marker = L.marker([0, 0], {icon: flameIcon}).addTo(mymap);
-	const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
-	const tileURL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-	const tiles = L.tileLayer(tileURL, {attribution});
-	tiles.addTo(mymap);
-	mymap.on('click', addMarker);
-
-	async function addMarker(e){
-    // Add marker to map at click location; add popup window
-		if (markers.length < 2){
-			const newMarker = new L.marker(e.latlng, {icon:flameIcon}).addTo(mymap);
-			markers.push(newMarker);
-			const {lat, lng} = e.latlng;
-			// const data = [lat, lng];
-			const data = { lat, lng };
-			// console.log(data);
-		    const options = {
-				method: 'POST',
-			 	headers: {
-			    	'Content-Type': 'application/json',
-					'Accept': 'application/json'
-			 	},
-			 	body: JSON.stringify(data)
-		   	};
-		    const response = await fetch('/api', options);
-		    const json = await response.json();
-		    console.log('Server received point: ', json);
-		}
-	}
-
-	async function add_points(){
-		var r = 0;
-		const d = {r};
-		const op = {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'Accept': 'application/json'
-			},
-			body: JSON.stringify(d)
-		}
-		const res = await fetch('/done', op);
-		const json = await res.json();
-		received = await json;
-		if (received == 1){
-			getData();
-			console.log('hello');
-			clearInterval(interval);
-			received = false;
-		}
-
-	}
-	async function simulate(){
-		if(markers.length == 2){
-			interval = setInterval(add_points, 3000);
-			var r = 0;
-			const d = {r};
-			const op = {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					'Accept': 'application/json'
-				},
-				body: JSON.stringify(d)
-			}
-			const res = await fetch('/sim', op);
-			const json = await res.json();
-			console.log('Simulation Starting ...', json);
-
-		}
-	}
-	function reset(remove_markers){
-		markers.forEach(marker => {
-			mymap.removeLayer(marker);
-		});
-		markers.length = 0;
-		lat_lons.length = 0
-		msg = 0;
-		clearInterval(interval);
-		// clearInterval(interval);
-	}
-	// document.getElementById('simulate').addEventListener('click', async event =>{
-	// 		// 	console.log(json);
-	// 		// }catch{
-	// 		// 	console.log('error');
-	// 		// }
-	// });
-	async function getData(){
-		// const xs = [];
-		// const ys = [];
-		var count = 0;
-		const response = await fetch('predicted_points.csv');
-		const data = await response.text();
-		console.log(data);
-		const table = data.split('\n').slice(1);
-		console.log(table);
-		table.forEach(row => {
-			const columns = row.split(',');
-			const latitude = columns[0];
-			// xs.push(year);
-			const longitude = columns[1];
-			// ys.push(parseFloat(temp)+14);
-			// console.log(year, temp);
-			if(count < 5){
-				// const newMarker = new L.marker(e.latlng, {icon:flameIcon}).addTo(mymap);
-				console.log(latitude, longitude);
-				// wait(1000);
-				setTimeout(function() {
-					const marker = new L.marker([parseFloat(latitude), parseFloat(longitude)], {icon: flameIcon}).addTo(mymap).bindPopup("hello");
-					markers.push(marker);
-				}, 2000);
-
-				count = count + 1;
-			}
-		});
-		console.log(markers.length);
-
-		// return {xs, ys};
-	}
-
-	// async function onClick(e) {
-	// 	await alert(L.getLatLng());
-	// }
-	</script>
+	<p>
+		<button id="reset">Reset</button><br /></br>
+		<button id="simulate">Start Simulation</button>
+	</p>
 </body>
+
 </html>
-
-
-
-
-
-
-
