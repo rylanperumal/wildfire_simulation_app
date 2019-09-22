@@ -30,12 +30,55 @@
 		}
 
 		#heading {
+			padding-top: 50px;
 			padding-left: 400px;
 		}
 
 		#selectors {
-			padding-left: 325px;
+			padding-left: 400px;
 			padding-top: 30px;
+		}
+
+		#buttons {
+			padding-left: 600px;
+		}
+
+		.button1 {
+			background: rgba(22, 190, 190, 0.932);
+			padding: 5px 10px;
+			color: #fff;
+			border: none;
+			border-radius: 5px;
+		}
+
+		.loader {
+			border: 12px solid #f3f3f3;
+			border-top: 12px solid rgba(4, 130, 233, 0.932);
+			border-radius: 50%;
+			width: 60px;
+			height: 60px;
+			animation: spin 2s linear infinite;
+		}
+
+		@keyframes spin {
+			0% {
+				transform: rotate(0deg);
+			}
+
+			100% {
+				transform: rotate(360deg);
+			}
+
+		}
+
+		#load {
+			padding-top: 5px;
+			padding-left: 640px;
+		}
+
+		#text {
+			padding-top: 20px;
+			padding-left: 20px;
 		}
 	</style>
 </head>
@@ -52,7 +95,7 @@
 	<div id="issMap"></div>
 	<div class="form-group row form-inline" id="selectors">
 		<div>
-			<select class="browser-default custom-select" id="n">
+			<select class="browser-default custom-select flash-button2" id="n">
 				<option selected>Select number of steps to predict</option>
 				<option value="1">1</option>
 				<option value="2">2</option>
@@ -61,14 +104,14 @@
 				<option value="5">5</option>
 				<option value="6">6</option>
 				<option value="7">7</option>
-				<option value="8">9</option>
+				<option value="8">8</option>
 				<option value="9">9</option>
 				<option value="10">10</option>
 
 		</div>
 		<div id="second_selector">
 			</select>
-			<select class="browser-default custom-select" id="rnn">
+			<select class="browser-default custom-select flash-button2" id="rnn">
 				<option selected>Choose Recurrent Neural Network Architecture</option>
 				<option value=0>Long Short-Term Memory</option>
 				<option value=1>Gated Recurrent Unit</option>
@@ -76,12 +119,19 @@
 
 		</div>
 	</div>
-	<div>
-		<p>
-			<button id="reset">Reset</button><br /></br>
-			<button id="simulate">Start Simulation</button>
-		</p>
+	<p id="p">
+		<div id="buttons">
+			<button type="button" class="btn btn-info btn-rounded button1" id="reset">Reset</button>
+			<button type="button" class="btn btn-info btn-rounded button1" id="simulate">Start Simulation</button>
+		</div>
+
+
+	</p>
+	<div id="load">
+		<div class="loader" id="l" style="display: none">
+		</div>
 	</div>
+
 </body>
 
 </html>

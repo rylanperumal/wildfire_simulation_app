@@ -6,6 +6,7 @@ function setup() {
     var can_sumilate = false;
     var value_n = 0;
     var value_rnn = -1;
+    var latlngs = [];
     const mymap = L.map('issMap').setView([-29.906137, 25.244125], 4); // latitude, longitude, zoom level
     const flameIcon = L.icon({
         iconUrl: '/images/flame.png',
@@ -28,6 +29,7 @@ function setup() {
                 lat,
                 lng
             } = e.latlng;
+            latlngs.push(e.latlng);
             const newMarker = new L.marker(e.latlng, {
                 icon: flameIcon
             }).addTo(mymap).bindPopup(lat.toFixed(4).toString() + "," + lng.toFixed(4).toString());
@@ -104,6 +106,14 @@ function setup() {
                     const res = await fetch('/simulate', options);
                     const json = await res.json();
                     console.log('Simulation Starting ...', json);
+                    var loader = document.getElementById("l");
+                    loader.style.display = "block";
+                    // const p = document.getElementById("p");
+                    // const loader = document.createElement('div');
+                    // loader.classList("loader");
+                    // p.append(loader)
+                } else {
+                    alert("Select 2 two points on the map below");
                 }
             } else {
                 alert("Select recurrent neural network architecture");
@@ -122,7 +132,7 @@ function setup() {
         lat_lons.length = 0
         msg = 0;
         document.getElementById("n").value = "Select number of steps to predict";
-        document.getElementById("rnn").value = "Select number of steps to predict";
+        document.getElementById("rnn").value = "Choose Recurrent Neural Network Architecture";
 
         clearInterval(interval);
     });
@@ -132,6 +142,8 @@ function setup() {
         const response = await fetch('database.csv');
         const data = await response.text();
         console.log('Fire simulation data received');
+        var loader = document.getElementById("l");
+        loader.style.display = "none";
         const table = data.split('\n').slice(1);
         table.forEach(row => {
             const columns = row.split(',');
@@ -140,13 +152,10 @@ function setup() {
             // console.log(value.value);
             if (count < parseFloat(value_n.value)) {
                 console.log(latitude, longitude);
-                setTimeout(function () {
-                    const marker = new L.marker([parseFloat(latitude), parseFloat(longitude)], {
-                        icon: flameIcon
-                    }).addTo(mymap).bindPopup(latitude.substring(0, 8) + "," + longitude.substring(0, 8));
-                    markers.push(marker);
-                }, 3000);
-
+                const marker = new L.marker([parseFloat(latitude), parseFloat(longitude)], {
+                    icon: flameIcon
+                }).addTo(mymap).bindPopup(latitude.substring(0, 8) + "," + longitude.substring(0, 8));
+                markers.push(marker);
                 count = count + 1;
             }
         });
