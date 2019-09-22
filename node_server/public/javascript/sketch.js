@@ -4,7 +4,8 @@ function setup() {
     var interval;
     var received = 0;
     var can_sumilate = false;
-    var value = 0;
+    var value_n = 0;
+    var value_rnn = -1;
     const mymap = L.map('issMap').setView([-29.906137, 25.244125], 4); // latitude, longitude, zoom level
     const flameIcon = L.icon({
         iconUrl: '/images/flame.png',
@@ -78,30 +79,37 @@ function setup() {
 
     const simulate = document.getElementById('simulate');
     simulate.addEventListener('click', async func => {
-        value = document.getElementById("n");
-        if (isNaN(parseFloat(value.value)) == false) {
-            if (can_sumilate == true) {
-                can_sumilate = false;
-                interval = setInterval(add_points, 3000);
-                var v = parseFloat(value.value);
-                console.log(v);
-                const data = {
-                    v
-                };
-                const options = {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                };
-                const res = await fetch('/simulate', options);
-                const json = await res.json();
-                console.log('Simulation Starting ...', json);
+        value_n = document.getElementById("n");
+        value_rnn = document.getElementById("rnn");
+        if (isNaN(parseFloat(value_n.value)) == false) {
+            if (isNaN(parseFloat(value_rnn.value)) == false) {
+                if (can_sumilate == true) {
+                    can_sumilate = false;
+                    interval = setInterval(add_points, 3000);
+                    var v = parseFloat(value_n.value);
+                    var r = parseFloat(value_rnn.value);
+                    console.log(v);
+                    const data = {
+                        v,
+                        r
+                    };
+                    const options = {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    };
+                    const res = await fetch('/simulate', options);
+                    const json = await res.json();
+                    console.log('Simulation Starting ...', json);
+                }
+            } else {
+                alert("Select recurrent neural network architecture");
             }
         } else {
-            alert("Enter number of time steps");
+            alert("Select number of steps to be predicted");
         }
 
     });
@@ -113,7 +121,9 @@ function setup() {
         markers.length = 0;
         lat_lons.length = 0
         msg = 0;
-        document.getElementById("n").value = "";
+        document.getElementById("n").value = "Select number of steps to predict";
+        document.getElementById("rnn").value = "Select number of steps to predict";
+
         clearInterval(interval);
     });
 
@@ -127,15 +137,15 @@ function setup() {
             const columns = row.split(',');
             const latitude = columns[0];
             const longitude = columns[1];
-            console.log(value.value);
-            if (count < parseFloat(value.value)) {
+            // console.log(value.value);
+            if (count < parseFloat(value_n.value)) {
                 console.log(latitude, longitude);
                 setTimeout(function () {
                     const marker = new L.marker([parseFloat(latitude), parseFloat(longitude)], {
                         icon: flameIcon
                     }).addTo(mymap).bindPopup(latitude.substring(0, 8) + "," + longitude.substring(0, 8));
                     markers.push(marker);
-                }, 1000);
+                }, 3000);
 
                 count = count + 1;
             }

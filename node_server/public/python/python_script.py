@@ -16,9 +16,10 @@ import time
 def get_coords():
     lines = input()
     coords = np.array(lines.split(','))
-    nsteps = int(coords[-1])
-    coordinates = coords[:-1].astype(np.float)
-    return coordinates, nsteps
+    rnn = int(coords[-1])
+    nsteps = int(coords[-2])
+    coordinates = coords[:-2].astype(np.float)
+    return coordinates, nsteps, rnn
 
 
 def get_angle(p1, p2):
@@ -177,10 +178,15 @@ def get_new_point(points, y_pred, lat_diff, lon_diff):
 
 if __name__ == '__main__':
     start = time.time()
-    coords, nsteps = get_coords()
+    coords, nsteps, rnn = get_coords()
     points = []
-    model = load_model(
-        '/home/rylan/Desktop/wildfire_simulation_app/node_server/public/lstm_networks/lstm_3.h5')
+    model = None
+    if rnn == 0:
+        model = load_model(
+            '/home/rylan/Desktop/wildfire_simulation_app/node_server/public/lstm_networks/lstm_3.h5')
+    else:
+        model = load_model(
+            '/home/rylan/Desktop/wildfire_simulation_app/node_server/public/gru_networks/gru_3.h5')
     today = date.today()
     point_1 = list(coords[:2])
     point_2 = list(coords[2:])
@@ -203,8 +209,9 @@ if __name__ == '__main__':
     y_pred = []
     y_pred.append(model.predict_classes(X)[0])
 
-    lat_diff = abs(point_1[0] + point_2[0])
+    lat_diff = abs(point_1[0] - point_2[0])
     lon_diff = abs(point_1[1] - point_2[1])
+
     for i in range(nsteps):
         new_point = get_new_point(points.copy(), y_pred[i], lat_diff, lon_diff)
         points.append(np.array(new_point.copy()))

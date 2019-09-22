@@ -17,14 +17,14 @@ app.post('/api', (request, response) => {
 app.post('/simulate', (request, response) => {
     if (all_data.length == 2) {
         response.json('getting predictions');
-        var myPythonScriptPath = 'public/python/lstm.py';
+        var myPythonScriptPath = 'public/python/python_script.py';
         let {
             PythonShell
         } = require('python-shell');
         var pyshell = new PythonShell(myPythonScriptPath);
         all_data.push(request.body);
         console.log(all_data);
-        pyshell.send([all_data[0].lat, all_data[0].lng, all_data[1].lat, all_data[1].lng, all_data[2].v]);
+        pyshell.send([all_data[0].lat, all_data[0].lng, all_data[1].lat, all_data[1].lng, all_data[2].v, all_data[2].r]);
         pyshell.on('message', function (message) {
             console.log(message);
         })
