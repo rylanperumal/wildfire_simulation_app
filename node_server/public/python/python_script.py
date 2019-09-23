@@ -228,7 +228,7 @@ if __name__ == '__main__':
         y_pred.append(model.predict_classes(X)[0])
 
     points = np.array(points)
-    points_df = pd.DataFrame(points[1:])
+    points_df = pd.DataFrame(points[2:])
     points_df.to_csv(
         r'/home/rylan/Desktop/wildfire_simulation_app/node_server/public/database.csv', index=None, header=True)
     print('CSV Created')

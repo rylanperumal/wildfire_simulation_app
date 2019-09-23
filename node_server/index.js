@@ -44,3 +44,8 @@ app.post('/done', (request, response) => {
     console.log(done);
     done = request.body.r;
 });
+
+app.get('/cleared', (request, response) => {
+    all_data.length = 0;
+    response.json('cleared');
+});

@@ -7,7 +7,7 @@ function setup() {
     var value_n = 0;
     var value_rnn = -1;
     var latlngs = [];
-    const mymap = L.map('issMap').setView([-29.906137, 25.244125], 4); // latitude, longitude, zoom level
+    const mymap = L.map('issMap').setView([-29.906137, 25.244125], 5); // latitude, longitude, zoom level
     const flameIcon = L.icon({
         iconUrl: '/images/flame.png',
         iconSize: [30, 30],
@@ -22,6 +22,7 @@ function setup() {
     });
     tiles.addTo(mymap);
     mymap.on('click', addMarker);
+
 
     async function addMarker(e) {
         if (markers.length < 2) {
@@ -108,10 +109,6 @@ function setup() {
                     console.log('Simulation Starting ...', json);
                     var loader = document.getElementById("l");
                     loader.style.display = "block";
-                    // const p = document.getElementById("p");
-                    // const loader = document.createElement('div');
-                    // loader.classList("loader");
-                    // p.append(loader)
                 } else {
                     alert("Select 2 two points on the map below");
                 }
@@ -123,8 +120,14 @@ function setup() {
         }
 
     });
+    const back = document.getElementById("back");
+    back.addEventListener("click", async b => {
+        const response = await fetch('/cleared');
+        const json = await response.json();
+        console.log('Data cleared ');
+    });
     const reset = document.getElementById('reset');
-    reset.addEventListener('click', event => {
+    reset.addEventListener('click', async event => {
         markers.forEach(marker => {
             mymap.removeLayer(marker);
         });
@@ -133,8 +136,11 @@ function setup() {
         msg = 0;
         document.getElementById("n").value = "Select number of steps to predict";
         document.getElementById("rnn").value = "Choose Recurrent Neural Network Architecture";
-
         clearInterval(interval);
+        mymap.setView([-29.906137, 25.244125], 5);
+        const response = await fetch('/cleared');
+        const json = await response.json();
+        console.log('Data cleared');
     });
 
     async function getData() {
