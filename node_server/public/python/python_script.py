@@ -130,7 +130,6 @@ def generate_input(point_1, point_2, frp_1, frp_2, hours, weeks, first=True, y_p
 def get_elevation(point):
     lat = point[0]
     lon = point[1]
-    print(point)
     URL = 'https://elevation-api.io/api/elevation?points=' + \
         '(' + str(lat) + ',' + str(lon) + ')&key=-3aUREs6J1xZD-UA3F1AkfVbag-cB3'
     r = requests.get(url=URL)
@@ -208,7 +207,7 @@ if __name__ == '__main__':
     X = X.reshape((1, X.shape[0], X.shape[1]))
     y_pred = []
     y_pred.append(model.predict_classes(X)[0])
-    print(model.predict(X))
+    print(model.predict_proba(X))
 
     lat_diff = abs(point_1[0] - point_2[0])
     lon_diff = abs(point_1[1] - point_2[1])
@@ -227,6 +226,7 @@ if __name__ == '__main__':
         ), frp_1, frp_2, hours, weeks, first=False, y_p=y_pred[i].copy()))
         X = X.reshape((1, X.shape[0], X.shape[1]))
         y_pred.append(model.predict_classes(X)[0])
+        print(model.predict_proba(X))
 
     points = np.array(points)
     points_df = pd.DataFrame(points[2:])

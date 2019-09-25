@@ -218,6 +218,8 @@ function setup() {
         msg = 0;
         document.getElementById("n").value = "Select number of steps to predict";
         document.getElementById("rnn").value = "Choose Recurrent Neural Network Architecture";
+        document.getElementById("direction").value = "Select initial direction";
+
         clearInterval(interval);
         mymap.setView([-29.906137, 25.244125], 5);
         const response = await fetch('/cleared');
@@ -233,20 +235,49 @@ function setup() {
         var loader = document.getElementById("l");
         loader.style.display = "none";
         const table = data.split('\n').slice(1);
-        table.forEach(row => {
-            const columns = row.split(',');
-            const latitude = columns[0];
-            const longitude = columns[1];
-            // console.log(value.value);
-            if (count < parseFloat(value_n.value)) {
+
+        var i = 0;
+
+        function animated_loop() {
+            setTimeout(function () {
+                var row = table[i];
+                var columns = row.split(',');
+                const latitude = columns[0];
+                const longitude = columns[1];
                 console.log(latitude, longitude);
                 const marker = new L.marker([parseFloat(latitude), parseFloat(longitude)], {
                     icon: flameIcon
                 }).addTo(mymap).bindPopup(latitude.substring(0, 8) + "," + longitude.substring(0, 8));
                 markers.push(marker);
-                count = count + 1;
-            }
-        });
+                i++;
+                if (i < table.length - 1) {
+                    animated_loop();
+                }
+            }, 2000);
+        }
+        animated_loop();
+        // for (var i = 0; i < table.length; i++) {
+
+        //     (function (i) {
+        //         setTimeout(function () {
+        //             var row = table[i];
+        //             const columns = row.split(',');
+        //             const latitude = columns[0];
+        //             const longitude = columns[1];
+        //             // console.log(value.value);
+        //             if (count < parseFloat(value_n.value)) {
+        //                 console.log(latitude, longitude);
+        //                 const marker = new L.marker([parseFloat(latitude), parseFloat(longitude)], {
+        //                     icon: flameIcon
+        //                 }).addTo(mymap).bindPopup(latitude.substring(0, 8) + "," + longitude.substring(0, 8));
+        //                 markers.push(marker);
+        //             }
+        //         }, 2000 * i);
+        //     })(i);
+        //     count = count + 1;
+        // }
+        // table.forEach(row => {
+        // });
     }
 
 
