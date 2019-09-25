@@ -6,7 +6,7 @@ function setup() {
     var can_sumilate = false;
     var value_n = 0;
     var value_rnn = -1;
-    var latlngs = [];
+    var point_interval;
     const mymap = L.map('issMap').setView([-29.906137, 25.244125], 5); // latitude, longitude, zoom level
     const flameIcon = L.icon({
         iconUrl: '/images/flame.png',
@@ -20,36 +20,61 @@ function setup() {
     const tiles = L.tileLayer(tileURL, {
         attribution
     });
-    // var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-    //     attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-    // });
-    // var Stamen_Terrain = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}{r}.{ext}', {
-    //     attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    //     subdomains: 'abcd',
-    //     minZoom: 0,
-    //     maxZoom: 18,
-    //     ext: 'png'
-    // });
+
 
     tiles.addTo(mymap);
     mymap.on('click', addMarker);
 
+    async function plot_second_point(lat_1, lng_2) {
+        var dir = document.getElementById('direction')
+        if (isNaN(parseFloat(dir.value)) == false) {
 
-    async function addMarker(e) {
-        if (markers.length < 2) {
-            const {
-                lat,
-                lng
-            } = e.latlng;
-            latlngs.push(e.latlng);
-            const newMarker = new L.marker(e.latlng, {
+            var lat_diff = 0.0002
+            var lon_diff = 0.0002
+            var lat = lat_1;
+            var lng = lng_2;
+            if (dir.value == 1) {
+                // north west
+                lat = lat + lat_diff;
+                lng = lng - lon_diff;
+            } else if (dir.value == 2) {
+                // north
+                lat = lat + lat_diff;
+                lng = lng;
+            } else if (dir.value == 3) {
+                // north east
+                lat = lat + lat_diff;
+                lng = lng + lon_diff;
+            } else if (dir.value == 4) {
+                // east
+                lat = lat;
+                lng = lng + lon_diff;
+            } else if (dir.value == 5) {
+                // south east
+                lat = lat - lat_diff;
+                lng = lng + lon_diff;
+            } else if (dir.value == 6) {
+                // south
+                lat = lat - lat_diff;
+                lng = lng;
+            } else if (dir.value == 7) {
+                // south west
+                lat = lat - lat_diff;
+                lng = lng - lon_diff;
+            } else if (dir.value == 8) {
+                // west
+                lat = lat;
+                lng = lng - lon_diff;
+            }
+            const marker = new L.marker([lat, lng], {
                 icon: flameIcon
             }).addTo(mymap).bindPopup(lat.toFixed(4).toString() + "," + lng.toFixed(4).toString());
-            markers.push(newMarker);
+            markers.push(marker);
             const data = {
                 lat,
                 lng
             };
+            console.log(lat, lng);
             const options = {
                 method: 'POST',
                 headers: {
@@ -61,9 +86,52 @@ function setup() {
             const response = await fetch('/api', options);
             const json = await response.json();
             console.log('Server received point: ', json);
-            if (markers.length == 2) {
-                can_sumilate = true;
-            }
+            console.log(dir.value);
+        } else {
+            alert("Choose a direction");
+        }
+        if (markers.length == 2) {
+            can_sumilate = true;
+            clearInterval(point_interval);
+        }
+
+    }
+
+    async function addMarker(e) {
+        if (markers.length < 1) {
+            const {
+                lat,
+                lng
+            } = e.latlng;
+            // latlngs.push(e.latlng);
+            const marker = new L.marker(e.latlng, {
+                icon: flameIcon
+            }).addTo(mymap).bindPopup(lat.toFixed(4).toString() + "," + lng.toFixed(4).toString());
+            markers.push(marker);
+            const data = {
+                lat,
+                lng
+            };
+            console.log(lat, lng)
+            setTimeout(function () {
+                mymap.setView([lat, lng], 16);
+
+            }, 1500);
+            const options = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(data)
+            };
+            const response = await fetch('/api', options);
+            const json = await response.json();
+            console.log('Server received point: ', json);
+            // Adding second point based on direction
+            point_interval = setInterval(function () {
+                plot_second_point(lat, lng)
+            }, 5000);
         }
     }
 

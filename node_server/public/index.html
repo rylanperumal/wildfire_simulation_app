@@ -76,9 +76,13 @@
 			padding-left: 640px;
 		}
 
-		#text {
+		#top {
 			padding-top: 20px;
 			padding-left: 20px;
+		}
+
+		#dir {
+			padding-left: 10px;
 		}
 
 		.a {
@@ -108,10 +112,27 @@
 
 	<h1 id="heading"> Wildfire Spread Simulation </h1>
 	<!-- <p> -->
-	<div id="text">
-		<a href="/welcome.html" class="previous round " id="back">&#8249;</a>
-		<span class=font-weight-bold>Select two points on the map below:</span>
+	<div class="form-group row form-inline" id="top">
+
+		<div>
+			<a href="/welcome.html" class="previous round " id="back">&#8249;</a>
+			<span class=font-weight-bold>Select a point on the map below and an initial direction: </span>
+		</div>
+		<div id='dir'>
+			<select class="browser-default custom-select" id="direction">
+				<option selected>Select initial direction</option>
+				<option value="1">North West</option>
+				<option value="2">North</option>
+				<option value="3">North East</option>
+				<option value="4">East</option>
+				<option value="5">South East</option>
+				<option value="6">South</option>
+				<option value="7">South West</option>
+				<option value="8">South</option>
+			</select>
+		</div>
 	</div>
+
 	<!-- </p> -->
 
 	<div id="issMap"></div>
@@ -128,11 +149,21 @@
 				<option value="7">7</option>
 				<option value="8">8</option>
 				<option value="9">9</option>
-				<option value="10">10</option>
+				<option value="10">11</option>
+				<option value="10">12</option>
+				<option value="10">13</option>
+				<option value="10">14</option>
+				<option value="10">15</option>
+				<option value="10">16</option>
+				<option value="10">17</option>
+				<option value="10">18</option>
+				<option value="10">19</option>
+				<option value="10">20</option>
 
+
+			</select>
 		</div>
 		<div id="second_selector">
-			</select>
 			<select class="browser-default custom-select flash-button2" id="rnn">
 				<option selected>Choose Recurrent Neural Network Architecture</option>
 				<option value=0>Long Short-Term Memory</option>

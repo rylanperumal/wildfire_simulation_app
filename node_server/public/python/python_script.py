@@ -208,6 +208,7 @@ if __name__ == '__main__':
     X = X.reshape((1, X.shape[0], X.shape[1]))
     y_pred = []
     y_pred.append(model.predict_classes(X)[0])
+    print(model.predict(X))
 
     lat_diff = abs(point_1[0] - point_2[0])
     lon_diff = abs(point_1[1] - point_2[1])
