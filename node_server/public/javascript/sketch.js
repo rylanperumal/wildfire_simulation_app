@@ -7,6 +7,7 @@ function setup() {
     var value_n = 0;
     var value_rnn = -1;
     var point_interval;
+    var dir;
     const mymap = L.map('issMap').setView([-29.906137, 25.244125], 5); // latitude, longitude, zoom level
     const flameIcon = L.icon({
         iconUrl: '/images/flame.png',
@@ -26,9 +27,8 @@ function setup() {
     mymap.on('click', addMarker);
 
     async function plot_second_point(lat_1, lng_2) {
-        var dir = document.getElementById('direction')
+        dir = document.getElementById('direction');
         if (isNaN(parseFloat(dir.value)) == false) {
-
             var lat_diff = 0.0002
             var lon_diff = 0.0002
             var lat = lat_1;
@@ -87,8 +87,6 @@ function setup() {
             const json = await response.json();
             console.log('Server received point: ', json);
             console.log(dir.value);
-        } else {
-            alert("Choose a direction");
         }
         if (markers.length == 2) {
             can_sumilate = true;
@@ -163,39 +161,44 @@ function setup() {
     simulate.addEventListener('click', async func => {
         value_n = document.getElementById("n");
         value_rnn = document.getElementById("rnn");
-        if (isNaN(parseFloat(value_n.value)) == false) {
-            if (isNaN(parseFloat(value_rnn.value)) == false) {
-                if (can_sumilate == true) {
-                    can_sumilate = false;
-                    interval = setInterval(add_points, 3000);
-                    var v = parseFloat(value_n.value);
-                    var r = parseFloat(value_rnn.value);
-                    console.log(v);
-                    const data = {
-                        v,
-                        r
-                    };
-                    const options = {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify(data)
-                    };
-                    const res = await fetch('/simulate', options);
-                    const json = await res.json();
-                    console.log('Simulation Starting ...', json);
-                    var loader = document.getElementById("l");
-                    loader.style.display = "block";
+        dir = document.getElementById('direction');
+        if (isNaN(parseFloat(dir.value)) == false) {
+            if (isNaN(parseFloat(value_n.value)) == false) {
+                if (isNaN(parseFloat(value_rnn.value)) == false) {
+                    if (can_sumilate == true) {
+                        can_sumilate = false;
+                        interval = setInterval(add_points, 3000);
+                        var v = parseFloat(value_n.value);
+                        var r = parseFloat(value_rnn.value);
+                        console.log(v);
+                        const data = {
+                            v,
+                            r
+                        };
+                        const options = {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify(data)
+                        };
+                        const res = await fetch('/simulate', options);
+                        const json = await res.json();
+                        console.log('Simulation Starting ...', json);
+                        var loader = document.getElementById("l");
+                        loader.style.display = "block";
+                    } else {
+                        alert("Select 2 two points on the map below");
+                    }
                 } else {
-                    alert("Select 2 two points on the map below");
+                    alert("Select recurrent neural network architecture");
                 }
             } else {
-                alert("Select recurrent neural network architecture");
+                alert("Select number of steps to be predicted");
             }
         } else {
-            alert("Select number of steps to be predicted");
+            alert("Select intial direction");
         }
 
     });
