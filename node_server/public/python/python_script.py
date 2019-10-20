@@ -1,4 +1,5 @@
 import tensorflow
+from tensorflow.keras import backend
 from keras.models import load_model
 import sys
 import json
@@ -178,6 +179,7 @@ def get_new_point(points, y_pred, lat_diff, lon_diff):
 if __name__ == '__main__':
     start = time.time()
     coords, nsteps, rnn = get_coords()
+    print('R', rnn)
     points = []
     model = None
     if rnn == 0:
@@ -229,7 +231,13 @@ if __name__ == '__main__':
         # print(model.predict_proba(X))
 
     points = np.array(points)
-    points_df = pd.DataFrame(points[2:])
+    y_pred.insert(0, rnn)
+    print(points)
+    print(points[2:, 0])
+    print(points[2:, 1])
+    print(y_pred)
+    points_df = pd.DataFrame(
+        {'latitude': points[:, 0], 'longitude': points[:, 1], 'direction': y_pred[:]})
     points_df.to_csv(
         r'/home/rylan/Desktop/wildfire_simulation_app/node_server/public/database.csv', index=None, header=True)
     print('CSV Created')
