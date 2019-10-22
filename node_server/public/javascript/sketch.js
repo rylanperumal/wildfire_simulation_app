@@ -45,23 +45,23 @@ function setup() {
                 // north east
                 lat = lat + lat_diff;
                 lng = lng + lon_diff;
-            } else if (dir.value == 4) {
+            } else if (dir.value == 5) {
                 // east
                 lat = lat;
                 lng = lng + lon_diff;
-            } else if (dir.value == 5) {
+            } else if (dir.value == 8) {
                 // south east
                 lat = lat - lat_diff;
                 lng = lng + lon_diff;
-            } else if (dir.value == 6) {
+            } else if (dir.value == 7) {
                 // south
                 lat = lat - lat_diff;
                 lng = lng;
-            } else if (dir.value == 7) {
+            } else if (dir.value == 6) {
                 // south west
                 lat = lat - lat_diff;
                 lng = lng - lon_diff;
-            } else if (dir.value == 8) {
+            } else if (dir.value == 4) {
                 // west
                 lat = lat;
                 lng = lng - lon_diff;
@@ -69,7 +69,6 @@ function setup() {
             const marker = new L.marker([lat, lng], {
                 icon: flameIcon
             }).addTo(mymap).bindPopup(lat.toFixed(4).toString() + "," + lng.toFixed(4).toString());
-            markers.push(marker);
             const data = {
                 lat,
                 lng
@@ -85,6 +84,7 @@ function setup() {
             };
             const response = await fetch('/api', options);
             const json = await response.json();
+            markers.push(marker);
             console.log('Server received point: ', json);
             console.log(dir.value);
         }
@@ -92,9 +92,7 @@ function setup() {
             can_sumilate = true;
             clearInterval(point_interval);
         }
-
     }
-
     async function addMarker(e) {
         if (markers.length < 1) {
             const {
@@ -112,7 +110,7 @@ function setup() {
             };
             console.log(lat, lng)
             setTimeout(function () {
-                mymap.setView([lat, lng], 17);
+                mymap.setView([lat, lng], 18);
 
             }, 1500);
             const options = {
@@ -167,13 +165,15 @@ function setup() {
                 if (isNaN(parseFloat(value_rnn.value)) == false) {
                     if (can_sumilate == true) {
                         can_sumilate = false;
-                        interval = setInterval(add_points, 3000);
+                        interval = setInterval(add_points, 1000);
                         var v = parseFloat(value_n.value);
                         var r = parseFloat(value_rnn.value);
+                        var d = parseFloat(dir.value);
                         console.log(v);
                         const data = {
                             v,
-                            r
+                            r,
+                            d
                         };
                         const options = {
                             method: 'POST',
@@ -189,7 +189,7 @@ function setup() {
                         var loader = document.getElementById("l");
                         loader.style.display = "block";
                     } else {
-                        alert("Select 2 two points on the map below");
+                        alert("Select a point on the map below");
                     }
                 } else {
                     alert("Select recurrent neural network architecture");
@@ -224,6 +224,7 @@ function setup() {
         mymap.setView([-29.906137, 25.244125], 5);
         const response = await fetch('/cleared');
         const json = await response.json();
+        can_sumilate = false;
         console.log('Data cleared');
     });
 

@@ -24,7 +24,7 @@ app.post('/simulate', (request, response) => {
         var pyshell = new PythonShell(myPythonScriptPath);
         all_data.push(request.body);
         console.log(all_data);
-        pyshell.send([all_data[0].lat, all_data[0].lng, all_data[1].lat, all_data[1].lng, all_data[2].v, all_data[2].r]);
+        pyshell.send([all_data[0].lat, all_data[0].lng, all_data[1].lat, all_data[1].lng, all_data[2].v, all_data[2].r, all_data[2].d]);
         pyshell.on('message', function (message) {
             console.log(message);
         })
@@ -41,7 +41,7 @@ app.post('/simulate', (request, response) => {
 
 app.post('/done', (request, response) => {
     response.json(done);
-    console.log(done);
+    // console.log(done);
     done = request.body.r;
 });
 

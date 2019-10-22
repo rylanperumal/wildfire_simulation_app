@@ -86,20 +86,22 @@
                         // north east
                         direction.textContent = `Direction: NORTH EAST`;
                     } else if (dir == 3) {
-                        // east
-                        direction.textContent = `Direction: EAST`;
-                    } else if (dir == 4) {
-                        // south east
-                        direction.textContent = `Direction: SOUTH EAST`;
-                    } else if (dir == 5) {
-                        // south
-                        direction.textContent = `Direction: SOUTH`;
-                    } else if (dir == 6) {
-                        // south west
-                        direction.textContent = `Direction: SOUTH WEST`;
-                    } else if (dir == 7) {
                         // west
                         direction.textContent = `Direction: WEST`;
+                    } else if (dir == 4) {
+                        // east
+                        direction.textContent = `Direction: EAST`;
+                    } else if (dir == 5) {
+                        // south west
+                        direction.textContent = `Direction: SOUTH WEST`;
+                    } else if (dir == 6) {
+                        // south west
+                        direction.textContent = `Direction: SOUTH`;
+                    } else if (dir == 7) {
+                        // south east
+                        direction.textContent = `Direction: SOUTH EAST`;
+                    } else if (dir == -1) {
+                        direction.textContent = `Direction: NO DIRECTION`;
                     }
 
                     root.append(point, latitude, longitude, direction);
@@ -114,7 +116,6 @@
 
         const back = document.getElementById("back");
         back.addEventListener("click", async b => {
-            // window.history.back();
             const response = await fetch('/cleared');
             const json = await response.json();
             console.log('Data cleared ');

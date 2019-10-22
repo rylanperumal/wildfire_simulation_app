@@ -17,10 +17,11 @@ import time
 def get_coords():
     lines = input()
     coords = np.array(lines.split(','))
-    rnn = int(coords[-1])
-    nsteps = int(coords[-2])
-    coordinates = coords[:-2].astype(np.float)
-    return coordinates, nsteps, rnn
+    dir = int(coords[-1])
+    rnn = int(coords[-2])
+    nsteps = int(coords[-3])
+    coordinates = coords[:-3].astype(np.float)
+    return coordinates, nsteps, rnn, dir
 
 
 def get_angle(p1, p2):
@@ -42,32 +43,32 @@ def determine_direction(main_point, query_point, output_length=9):
     center_i, center_j = grid.shape[0]//2, grid.shape[0]//2
     angle = get_angle(main_point, query_point)
     value = 1
-    y = -1
+    # y = -1
     if (-22.5 < angle and angle <= 22.5):  # east
         grid[center_i, center_j+1] = value
         y = 4
     elif(22.5 < angle and angle <= 67.5):  # north east
         grid[center_i-1, center_j+1] = value
-        y = 3
+        y = 2
     elif(67.5 < angle and angle <= 112.5):  # north
         grid[center_i-1, center_j] = value
-        y = 2
+        y = 1
     elif(112.5 < angle and angle <= 157.5):  # north west
         grid[center_i-1, center_j-1] = value
-        y = 1
+        y = 0
     elif(-67.5 < angle and angle <= -22.5):  # south east
         grid[center_i+1, center_j+1] = value
-        y = 5
+        y = 7
     elif(-112.5 < angle and angle <= 67.5):  # south
         grid[center_i+1, center_j] = value
         y = 6
     elif(-157.5 < angle and angle <= -112.5):  # south west
         grid[center_i+1, center_j-1] = value
-        y = 7
+        y = 5
     elif(angle >= 157.5 or angle <= 157.5):  # west
         grid[center_i, center_j-1] = value
-        y = 8
-    return y-1
+        y = 3
+    return y
 
 
 def distance(coord1_lat, coord1_long, coord2_lat, coord2_long):
@@ -93,7 +94,7 @@ def generate_input(point_1, point_2, frp_1, frp_2, hours, weeks, first=True, y_p
     # X = []
     y_i = determine_direction(point_1, point_2)
     if first:
-        x1 = [0]
+        x1 = [np.random.choice([0, 1, 2, 3, 4, 5, 6, 7])]
         x1.extend(list(np.array(point_1[:-1])/100))
         x1.append(frp_1)
         x1.append(point_1[-1])
@@ -138,38 +139,41 @@ def get_elevation(point):
     return data['elevations'][0]['elevation']
 
 
-def get_new_point(points, y_pred, lat_diff, lon_diff):
+def get_new_point(points, y, lat_diff, lon_diff):
     point = points[-1]
     new_point = []
-    if y_pred == 0:
+    # print(y)
+    # print(lat_diff)
+    # print(lon_diff)
+    if y == 0:
         # north west
         new_point.append(point[0] + lat_diff)
         new_point.append(point[1] - lon_diff)
-    elif y_pred == 1:
+    elif y == 1:
         # north
         new_point.append(point[0] + lat_diff)
         new_point.append(point[1])
-    elif y_pred == 2:
+    elif y == 2:
         # north east
         new_point.append(point[0] + lat_diff)
         new_point.append(point[1] + lon_diff)
-    elif y_pred == 3:
+    elif y == 3:
         # west
         new_point.append(point[0])
         new_point.append(point[1] - lon_diff)
-    elif y_pred == 4:
+    elif y == 4:
         # east
         new_point.append(point[0])
         new_point.append(point[1] + lon_diff)
-    elif y_pred == 5:
+    elif y == 5:
         # south west
         new_point.append(point[0] - lat_diff)
         new_point.append(point[1] - lon_diff)
-    elif y_pred == 6:
+    elif y == 6:
         # south
         new_point.append(point[0] - lat_diff)
         new_point.append(point[1])
-    elif y_pred == 7:
+    elif y == 7:
         # south east
         new_point.append(point[0] - lat_diff)
         new_point.append(point[1] + lon_diff)
@@ -177,9 +181,7 @@ def get_new_point(points, y_pred, lat_diff, lon_diff):
 
 
 if __name__ == '__main__':
-    start = time.time()
-    coords, nsteps, rnn = get_coords()
-    print('R', rnn)
+    coords, nsteps, rnn, dir = get_coords()
     points = []
     model = None
     if rnn == 0:
@@ -207,14 +209,18 @@ if __name__ == '__main__':
     X = np.array(generate_input(point_1, point_2, frp_1,
                                 frp_2, hours, weeks, first=True, y_p=None))
     X = X.reshape((1, X.shape[0], X.shape[1]))
+    # print(X)
     y_pred = []
     y_pred.append(model.predict_classes(X)[0])
     # print(model.predict_proba(X))
+    # y_pred.append(dir-1)
 
-    lat_diff = abs(point_1[0] - point_2[0])
-    lon_diff = abs(point_1[1] - point_2[1])
+    lat_diff = 0.0001
+    lon_diff = 0.0001
 
     for i in range(nsteps):
+        print(i)
+        print(y_pred)
         new_point = get_new_point(points.copy(), y_pred[i], lat_diff, lon_diff)
         points.append(np.array(new_point.copy()))
         old_point = list(points[i+1])
@@ -231,16 +237,10 @@ if __name__ == '__main__':
         # print(model.predict_proba(X))
 
     points = np.array(points)
-    y_pred.insert(0, rnn)
-    print(points)
-    print(points[2:, 0])
-    print(points[2:, 1])
-    print(y_pred)
+    y_pred.insert(0, dir-1)
+    y_pred.insert(0, -1)
     points_df = pd.DataFrame(
-        {'latitude': points[:, 0], 'longitude': points[:, 1], 'direction': y_pred[:]})
+        {'latitude': points[:, 0], 'longitude': points[:, 1], 'direction': y_pred[:-1]})
     points_df.to_csv(
         r'/home/rylan/Desktop/wildfire_simulation_app/node_server/public/database.csv', index=None, header=True)
     print('CSV Created')
-    print('done')
-    end = time.time()
-    print(end-start)
