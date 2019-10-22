@@ -26,12 +26,12 @@
 		integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 	<style>
 		#issMap {
-			height: 500px;
+			height: 650px;
 		}
 
 		#heading {
 			padding-top: 50px;
-			padding-left: 700px;
+			padding-left: 725px;
 		}
 
 		#selectors {
@@ -45,6 +45,7 @@
 
 		.button1 {
 			background: rgba(22, 190, 190, 0.932);
+			/* background: rgb(7, 151, 7); */
 			padding: 5px 10px;
 			color: #fff;
 			border: none;
@@ -114,13 +115,19 @@
 
 <body>
 
-	<h1 id="heading"> Wildfire Spread Simulation </h1>
+	<div class="form-group row form-inline">
+		<h1 id="heading"> Wildfire Spread Simulation </h1>
+		<h1 onclick="myFunction()">&#9432;</h1>
+	</div>
+
+
 	<!-- <p> -->
 	<div class="form-group row form-inline" id="top">
 
 		<div>
-			<a href="/welcome.html" class="previous round " id="back">&#8249;</a>
-			<span class=font-weight-bold>Select a point on the map below and an initial direction: </span>
+			<a style="font-size:28px;" href="/welcome.html" class="previous round " id="back">&#8249;</a>
+
+			<span style="font-size:20px;" class=font-weight-bold>Select a point on the map below and </span>
 		</div>
 		<div id='dir'>
 			<select class="browser-default custom-select" id="direction">
@@ -134,12 +141,20 @@
 				<option value="7">South West</option>
 				<option value="8">West</option>
 			</select>
+			<span style="font-size:20px;" class=font-weight-bold>: </span>
 		</div>
-		<div id="text" , style="display: none">
+		<div id="text" style="display: none;font-size:20px;">
 			<a href="status.html">View Data</a>
 		</div>
-	</div>
 
+	</div>
+	<script>
+		function myFunction() {
+			alert(
+				"Usage\n1. Select a point on the map below.\n2. Select an initial direction in which the wildfire spreads.\n3. Select the number of time steps to be predicted.\n4. Select a Recurrent Neural Network Architecture.\n5. Start Simulation."
+			);
+		}
+	</script>
 	<div id="issMap"></div>
 	<div class="form-group row form-inline" id="selectors">
 		<div>

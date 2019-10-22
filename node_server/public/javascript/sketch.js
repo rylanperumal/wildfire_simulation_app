@@ -29,8 +29,8 @@ function setup() {
     async function plot_second_point(lat_1, lng_2) {
         dir = document.getElementById('direction');
         if (isNaN(parseFloat(dir.value)) == false) {
-            var lat_diff = 0.0002
-            var lon_diff = 0.0002
+            var lat_diff = 0.0001
+            var lon_diff = 0.0001
             var lat = lat_1;
             var lng = lng_2;
             if (dir.value == 1) {
@@ -112,7 +112,7 @@ function setup() {
             };
             console.log(lat, lng)
             setTimeout(function () {
-                mymap.setView([lat, lng], 16);
+                mymap.setView([lat, lng], 17);
 
             }, 1500);
             const options = {
@@ -129,7 +129,7 @@ function setup() {
             // Adding second point based on direction
             point_interval = setInterval(function () {
                 plot_second_point(lat, lng)
-            }, 5000);
+            }, 1000);
         }
     }
 

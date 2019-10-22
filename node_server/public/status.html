@@ -67,39 +67,42 @@
                     const lon = columns[1];
                     const dir = columns[2];
                     const root = document.createElement('p');
+                    const point = document.createElement('div')
+                    point.textContent = `Point ${count + 1}`;
                     const latitude = document.createElement('div');
-                    latitude.textContent = `latitude: ${lat}`;
+                    latitude.textContent = `latitude: ${lat}°`;
                     const longitude = document.createElement('div');
-                    longitude.textContent = `latitude: ${lon}`;
+                    longitude.textContent = `latitude: ${lon}°`;
                     const direction = document.createElement('div');
+                    direction.style.color = 'White';
 
                     if (dir == 0) {
                         // north west
-                        direction.textContent = `direction: North West`;
+                        direction.textContent = `Direction: NORTH WEST`;
                     } else if (dir == 1) {
                         // north
-                        direction.textContent = `direction: North`;
+                        direction.textContent = `Direction: NORTH`;
                     } else if (dir == 2) {
                         // north east
-                        direction.textContent = `direction: North East`;
+                        direction.textContent = `Direction: NORTH EAST`;
                     } else if (dir == 3) {
                         // east
-                        direction.textContent = `direction: East`;
+                        direction.textContent = `Direction: EAST`;
                     } else if (dir == 4) {
                         // south east
-                        direction.textContent = `direction: South East`;
+                        direction.textContent = `Direction: SOUTH EAST`;
                     } else if (dir == 5) {
                         // south
-                        direction.textContent = `direction: South`;
+                        direction.textContent = `Direction: SOUTH`;
                     } else if (dir == 6) {
                         // south west
-                        direction.textContent = `direction: South West`;
+                        direction.textContent = `Direction: SOUTH WEST`;
                     } else if (dir == 7) {
                         // west
-                        direction.textContent = `direction: West`;
+                        direction.textContent = `Direction: WEST`;
                     }
 
-                    root.append(latitude, longitude, direction);
+                    root.append(point, latitude, longitude, direction);
                     document.getElementById('body').append(root);
                     count++;
                 }
@@ -111,6 +114,7 @@
 
         const back = document.getElementById("back");
         back.addEventListener("click", async b => {
+            // window.history.back();
             const response = await fetch('/cleared');
             const json = await response.json();
             console.log('Data cleared ');

@@ -1,4 +1,6 @@
 p {
     padding: 10px;
-    background-color: coral;
+    background-color: crimson;
+    color: black;
+    font-size: 25px;
 }
