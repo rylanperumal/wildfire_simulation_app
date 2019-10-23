@@ -231,8 +231,8 @@ if __name__ == '__main__':
     # print(model.predict_proba(X))
     # y_pred.append(dir-1)
 
-    lat_diff = 0.0002
-    lon_diff = 0.0002
+    lat_diff = np.sqrt((0.0001 ** 2) + (0.0001 ** 2))
+    lon_diff = np.sqrt((0.0001 ** 2) + (0.0001 ** 2))
     new_point = get_new_point(
         points.copy(), y_pred[0], lat_diff, lon_diff)
     points.append(list(new_point.copy()))

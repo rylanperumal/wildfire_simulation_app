@@ -33,8 +33,8 @@ function setup() {
     async function plot_second_point(lat_1, lng_2) {
         dir = document.getElementById('direction');
         if (isNaN(parseFloat(dir.value)) == false) {
-            var lat_diff = 0.0002
-            var lon_diff = 0.0002
+            var lat_diff = Math.sqrt(Math.pow(0.0001, 2) + Math.pow(0.0001, 2))
+            var lon_diff = Math.sqrt(Math.pow(0.0001, 2) + Math.pow(0.0001, 2))
             var lat = lat_1;
             var lng = lng_2;
             if (dir.value == 1) {
