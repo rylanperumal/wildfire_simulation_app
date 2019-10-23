@@ -8,7 +8,9 @@ function setup() {
     var value_rnn = -1;
     var point_interval;
     var dir;
-    const mymap = L.map('issMap').setView([-29.906137, 25.244125], 5); // latitude, longitude, zoom level
+    // -29.593539, 25.581864
+    // -29.906137, 25.244125
+    const mymap = L.map('issMap').setView([-28.381810, 25.935159], 6); // latitude, longitude, zoom level
     const flameIcon = L.icon({
         iconUrl: '/images/flame.png',
         iconSize: [30, 30],
@@ -31,8 +33,8 @@ function setup() {
     async function plot_second_point(lat_1, lng_2) {
         dir = document.getElementById('direction');
         if (isNaN(parseFloat(dir.value)) == false) {
-            var lat_diff = 0.0001
-            var lon_diff = 0.0001
+            var lat_diff = 0.0002
+            var lon_diff = 0.0002
             var lat = lat_1;
             var lng = lng_2;
             if (dir.value == 1) {
@@ -223,7 +225,7 @@ function setup() {
         document.getElementById("direction").value = "Select initial direction";
 
         clearInterval(interval);
-        mymap.setView([-29.906137, 25.244125], 5);
+        mymap.setView([-28.381810, 25.935159], 6);
         const response = await fetch('/cleared');
         const json = await response.json();
         can_sumilate = false;

@@ -218,16 +218,8 @@ if __name__ == '__main__':
     x1.append(point_1[-1])
     x1.extend(list(hours))
     x1.extend(list(weeks))
-    x1 = np.array(x1)
-    x2 = [y_i]
-    x2.extend(list(np.array(point_2[:-1])/100))
-    x2.append(frp_2)
-    x2.append(point_2[-1])
-    x2.extend(list(hours))
-    x2.extend(list(weeks))
-    x2 = np.array(x2)
-    X = np.array([x1, x2])
-
+    X = np.array(x1)
+    X = X.reshape((1, X.shape[0], X.shape[1]))
     '''
 
     X_prev = np.array(generate_input(point_1, point_2, frp_1,
@@ -239,45 +231,48 @@ if __name__ == '__main__':
     # print(model.predict_proba(X))
     # y_pred.append(dir-1)
 
-    lat_diff = 0.0001
-    lon_diff = 0.0001
+    lat_diff = 0.0002
+    lon_diff = 0.0002
+    new_point = get_new_point(
+        points.copy(), y_pred[0], lat_diff, lon_diff)
+    points.append(list(new_point.copy()))
 
-    if nsteps > 1:
-        for i in range(nsteps):
-            new_point = get_new_point(
-                points.copy(), y_pred[i], lat_diff, lon_diff)
-            points.append(np.array(new_point.copy()))
-            old_point = list(points[i+1])
-            new_point.append(get_elevation(new_point.copy()))
-            old_point.append(get_elevation(old_point.copy()))
+    for i in range(nsteps-1):
+        new_point = get_new_point(
+            points.copy(), y_pred[i], lat_diff, lon_diff)
+        points.append(list(new_point.copy()))
+        old_point = list(points[i+1])
+        new_point.append(get_elevation(new_point.copy()))
+        old_point.append(get_elevation(old_point.copy()))
 
-            frp_1 = random.random()
-            frp_2 = random.random()
+        frp_1 = random.random()
+        frp_2 = random.random()
 
-            X_new = np.array(generate_input(old_point.copy(), new_point.copy(
-            ), frp_1, frp_2, hours, weeks, first=False, y_p=y_pred[i].copy()))
+        X_new = np.array(generate_input(old_point.copy(), new_point.copy(
+        ), frp_1, frp_2, hours, weeks, first=False, y_p=y_pred[i].copy()))
 
-            X_new = X_new.reshape((1, X_new.shape[0], X_new.shape[1]))
-            # X = X_prev.copy()
+        X_new = X_new.reshape((1, X_new.shape[0], X_new.shape[1]))
+        # X = X_prev.copy()
 
-            X = np.concatenate(
-                (X_prev[:, :-1, :].copy(), X_new.copy()), axis=1)
+        X = np.concatenate(
+            (X_prev[:, :-1, :].copy(), X_new.copy()), axis=1)
 
-            if i < 5:
-                y_pred.append(models[i+1].predict_classes(X)[0])
+        if i < 5:
+            y_pred.append(models[i+1].predict_classes(X)[0])
 
-            if i >= 5:
-                X = X[:, -3:, :].copy()
-                y_pred.append(models[1].predict_classes(X)[0])
+        if i >= 5:
+            X = X[:, -3:, :].copy()
+            y_pred.append(models[1].predict_classes(X)[0])
 
-            X_prev = X.copy()
-            # print(model.predict_proba(X))
+        X_prev = X.copy()
+        # print(model.predict_proba(X))
 
-    points = np.array(points)
     y_pred.insert(0, dir-1)
     y_pred.insert(0, -1)
+
+    points = np.array(points)
     points_df = pd.DataFrame(
-        {'latitude': points[:, 0], 'longitude': points[:, 1], 'direction': y_pred[:-1]})
+        {'latitude': points[:, 0], 'longitude': points[:, 1], 'direction': y_pred[:]})
     points_df.to_csv(
         r'/home/rylan/Desktop/wildfire_simulation_app/node_server/public/database.csv', index=None, header=True)
     print('CSV Created')
