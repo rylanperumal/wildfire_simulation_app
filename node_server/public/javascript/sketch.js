@@ -21,6 +21,8 @@ function setup() {
     const tiles = L.tileLayer(tileURL, {
         attribution
     });
+    var link = document.getElementById("text");
+
 
 
     tiles.addTo(mymap);
@@ -226,6 +228,7 @@ function setup() {
         const json = await response.json();
         can_sumilate = false;
         console.log('Data cleared');
+        link.style.display = "none";
     });
 
     async function getData() {
@@ -258,7 +261,6 @@ function setup() {
         }
         animated_loop();
 
-        var link = document.getElementById("text");
         link.style.display = "block";
     }
 

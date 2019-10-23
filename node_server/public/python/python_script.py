@@ -183,13 +183,16 @@ def get_new_point(points, y, lat_diff, lon_diff):
 if __name__ == '__main__':
     coords, nsteps, rnn, dir = get_coords()
     points = []
-    model = None
-    if rnn == 0:
-        model = load_model(
-            '/home/rylan/Desktop/wildfire_simulation_app/node_server/public/lstm_networks/lstm_3.h5')
-    else:
-        model = load_model(
-            '/home/rylan/Desktop/wildfire_simulation_app/node_server/public/gru_networks/gru_3.h5')
+    model_nums = [3, 4, 5, 6, 7, 8]
+    models = []
+
+    for i in model_nums:
+        if rnn == 0:
+            models.append(load_model(
+                '/home/rylan/Desktop/wildfire_simulation_app/node_server/public/lstm_networks/lstm_'+str(i)+'.h5'))
+        else:
+            models.append(load_model(
+                '/home/rylan/Desktop/wildfire_simulation_app/node_server/public/gru_networks/gru_'+str(i)+'.h5'))
     today = date.today()
     point_1 = list(coords[:2])
     point_2 = list(coords[2:])
@@ -206,35 +209,69 @@ if __name__ == '__main__':
     weeks[week-1] = 1
     frp_1 = random.random()
     frp_2 = random.random()
-    X = np.array(generate_input(point_1, point_2, frp_1,
-                                frp_2, hours, weeks, first=True, y_p=None))
-    X = X.reshape((1, X.shape[0], X.shape[1]))
+
+    '''
+    # this is for the first point
+    x1 = [0]
+    x1.extend(list(np.array(point_1[:-1])/100))
+    x1.append(frp_1)
+    x1.append(point_1[-1])
+    x1.extend(list(hours))
+    x1.extend(list(weeks))
+    x1 = np.array(x1)
+    x2 = [y_i]
+    x2.extend(list(np.array(point_2[:-1])/100))
+    x2.append(frp_2)
+    x2.append(point_2[-1])
+    x2.extend(list(hours))
+    x2.extend(list(weeks))
+    x2 = np.array(x2)
+    X = np.array([x1, x2])
+
+    '''
+
+    X_prev = np.array(generate_input(point_1, point_2, frp_1,
+                                     frp_2, hours, weeks, first=True, y_p=None))
+    X_prev = X_prev.reshape((1, X_prev.shape[0], X_prev.shape[1]))
     # print(X)
     y_pred = []
-    y_pred.append(model.predict_classes(X)[0])
+    y_pred.append(models[0].predict_classes(X_prev)[0])
     # print(model.predict_proba(X))
     # y_pred.append(dir-1)
 
     lat_diff = 0.0001
     lon_diff = 0.0001
 
-    for i in range(nsteps):
-        print(i)
-        print(y_pred)
-        new_point = get_new_point(points.copy(), y_pred[i], lat_diff, lon_diff)
-        points.append(np.array(new_point.copy()))
-        old_point = list(points[i+1])
-        new_point.append(get_elevation(new_point.copy()))
-        old_point.append(get_elevation(old_point.copy()))
+    if nsteps > 1:
+        for i in range(nsteps):
+            new_point = get_new_point(
+                points.copy(), y_pred[i], lat_diff, lon_diff)
+            points.append(np.array(new_point.copy()))
+            old_point = list(points[i+1])
+            new_point.append(get_elevation(new_point.copy()))
+            old_point.append(get_elevation(old_point.copy()))
 
-        frp_1 = random.random()
-        frp_2 = random.random()
+            frp_1 = random.random()
+            frp_2 = random.random()
 
-        X = np.array(generate_input(old_point.copy(), new_point.copy(
-        ), frp_1, frp_2, hours, weeks, first=False, y_p=y_pred[i].copy()))
-        X = X.reshape((1, X.shape[0], X.shape[1]))
-        y_pred.append(model.predict_classes(X)[0])
-        # print(model.predict_proba(X))
+            X_new = np.array(generate_input(old_point.copy(), new_point.copy(
+            ), frp_1, frp_2, hours, weeks, first=False, y_p=y_pred[i].copy()))
+
+            X_new = X_new.reshape((1, X_new.shape[0], X_new.shape[1]))
+            # X = X_prev.copy()
+
+            X = np.concatenate(
+                (X_prev[:, :-1, :].copy(), X_new.copy()), axis=1)
+
+            if i < 5:
+                y_pred.append(models[i+1].predict_classes(X)[0])
+
+            if i >= 5:
+                X = X[:, -3:, :].copy()
+                y_pred.append(models[1].predict_classes(X)[0])
+
+            X_prev = X.copy()
+            # print(model.predict_proba(X))
 
     points = np.array(points)
     y_pred.insert(0, dir-1)
